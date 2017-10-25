@@ -63,6 +63,7 @@
         ipproto/1, proto/1,
         tcp/1,
         tcp_options/1,
+        mtp3/1,
         udp/1,
         sctp/1,
         verify_checksum/1,
@@ -174,6 +175,9 @@ decapsulate_next({tcp, Data}, Headers) ->
 decapsulate_next({udp, Data}, Headers) ->
     {Header, Payload} = udp(Data),
     lists:reverse([Payload, Header|Headers]);
+decapsulate_next({mtp3, Data}, Headers) ->
+    {Header, Payload} = mtp3(Data),
+    lists:reverse([Payload, Header|Headers]);
 decapsulate_next({sctp, Data}, Headers) ->
     {Header, Payload} = sctp(Data),
     lists:reverse([Payload, Header|Headers]);
@@ -261,7 +265,7 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= icmp6;
     Proto =:= igmp;
     Proto =:= sctp;
-    Proto =:= sctp;
+    Proto =:= mtp3;
     Proto =:= tcp;
     Proto =:= udp ->
     try ?MODULE:Proto(Data) of
@@ -359,6 +363,10 @@ sctp(N) ->
 %% UDP
 udp(N) ->
     pkt_udp:codec(N).
+
+%% MTP3
+mtp3(N) ->
+    pkt_mtp3:codec(N).
 
 %% ICMP
 icmp(N) ->
