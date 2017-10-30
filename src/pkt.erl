@@ -132,6 +132,9 @@ decapsulate_next({llc, Data}, Headers) ->
     {Header, Payload} = llc(Data),
     lists:reverse([Payload, Header|Headers]);
 
+decapsulate_next({mtp3, Data}, Headers) ->
+    {Header, Payload} = mtp3(Data),
+    decapsulate_next({next(Header), Payload}, [Header|Headers]);
 decapsulate_next({ipv4, Data}, Headers) ->
     {Header, Payload} = ipv4(Data),
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
@@ -174,9 +177,6 @@ decapsulate_next({tcp, Data}, Headers) ->
     lists:reverse([Payload, Header|Headers]);
 decapsulate_next({udp, Data}, Headers) ->
     {Header, Payload} = udp(Data),
-    lists:reverse([Payload, Header|Headers]);
-decapsulate_next({mtp3, Data}, Headers) ->
-    {Header, Payload} = mtp3(Data),
     lists:reverse([Payload, Header|Headers]);
 decapsulate_next({sctp, Data}, Headers) ->
     {Header, Payload} = sctp(Data),
