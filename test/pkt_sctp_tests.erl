@@ -2,12 +2,12 @@
 
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("pkt/include/pkt_sctp.hrl").
--include_lib("pcapfile/include/pcapfile.hrl").
+-include_lib("epcap/include/epcap.hrl").
 
 sctp_payload(File) ->
-    {ok, #pcap{records = Recs}} = pcapfile:read_file(filename:join(["test/sctp_data", File])),
+    #pcap{records = Recs} = epcap_file:decode(filename:join(["test/sctp_data", File])),
     %% Skip Ethernet & IPv4
-    #pcap_record{payload = <<_Skip:34/binary-unit:8, Data/binary>>} = hd(Recs),
+    #pcap_rec{data = <<_Skip:34/binary-unit:8, Data/binary>>} = hd(Recs),
     Data.
 
 codec_test_() ->

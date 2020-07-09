@@ -242,6 +242,8 @@ decode(Proto, Data) when is_atom(Proto) ->
     end.
 
 % Aliases
+decode_next({ethernet, Data}, Headers) ->
+    decode_next({ether, Data}, Headers);
 decode_next({en10mb, Data}, Headers) ->
     decode_next({ether, Data}, Headers);
 decode_next({linux_sll, Data}, Headers) ->
