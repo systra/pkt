@@ -53,7 +53,7 @@ decode_chunks(Chunks, Acc) ->
         true ->
             <<Type:8, Flags:1/binary, Length:16, Rest/binary>> = Chunks,
             Pad = chunk_pad_len(Length),
-            Len = Length-4,
+            Len = Length-4-Pad,
             <<Payload:Len/binary, _:Pad/binary, Tail/binary>> = Rest,
             decode_chunks(Tail, [chunk(Type, Flags, Length, Payload) | Acc]);
         false ->
