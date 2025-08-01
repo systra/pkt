@@ -51,6 +51,7 @@
         null/1,
         gre/1,
         linux_cooked/1,
+        linux_cooked_v2/1,
         icmp/1,
         icmp6/1,
         igmp/1,
@@ -111,6 +112,8 @@ decapsulate_next({en10mb, Data}, Headers) ->
     decapsulate_next({ether, Data}, Headers);
 decapsulate_next({linux_sll, Data}, Headers) ->
     decapsulate_next({linux_cooked, Data}, Headers);
+decapsulate_next({linux_sll2, Data}, Headers) ->
+    decapsulate_next({linux_cooked_v2, Data}, Headers);
 
 % Protocol header indicates next header
 decapsulate_next({null, Data}, Headers) ->
@@ -118,6 +121,9 @@ decapsulate_next({null, Data}, Headers) ->
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
 decapsulate_next({linux_cooked, Data}, Headers) ->
     {Header, Payload} = linux_cooked(Data),
+    decapsulate_next({next(Header), Payload}, [Header|Headers]);
+decapsulate_next({linux_cooked_v2, Data}, Headers) ->
+    {Header, Payload} = linux_cooked_v2(Data),
     decapsulate_next({next(Header), Payload}, [Header|Headers]);
 decapsulate_next({ether, Data}, Headers) ->
     {Header, Payload} = ether(Data),
@@ -248,6 +254,8 @@ decode_next({en10mb, Data}, Headers) ->
     decode_next({ether, Data}, Headers);
 decode_next({linux_sll, Data}, Headers) ->
     decode_next({linux_cooked, Data}, Headers);
+decode_next({linux_sll2, Data}, Headers) ->
+    decode_next({linux_cooked_v2, Data}, Headers);
 
 % Protocol header indicates next header
 decode_next({Proto, Data}, Headers) when
@@ -256,6 +264,7 @@ decode_next({Proto, Data}, Headers) when
     Proto =:= ipv4;
     Proto =:= ipv6;
     Proto =:= linux_cooked;
+    Proto =:= linux_cooked_v2;
     Proto =:= null;
     Proto =:= '802.1q';
 
@@ -317,6 +326,7 @@ decode_next({Proto, Data}, Headers) when
 
 next(#null{family = Family}) -> family(Family);
 next(#linux_cooked{pro = Pro}) -> ether_type(Pro);
+next(#linux_cooked_v2{pro = Pro}) -> ether_type(Pro);
 next(#ether{type = Type}) -> ether_type(Type);
 next(#'802.1q'{type = Type}) -> ether_type(Type);
 next(#ipv4{off = Off}) when Off =/= 0 -> '$stop';
@@ -338,6 +348,8 @@ null(N) ->
 %% Linux cooked capture ("-i any") - DLT_LINUX_SLL
 linux_cooked(N) ->
     pkt_linux_cooked:codec(N).
+linux_cooked_v2(N) ->
+    pkt_linux_cooked_v2:codec(N).
 
 %% Ethernet
 ether(N) ->
